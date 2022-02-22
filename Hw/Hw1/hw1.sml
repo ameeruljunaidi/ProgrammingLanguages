@@ -5,43 +5,105 @@
 *)
 
 (*
-    Write a function is_older
-    Takes two dates and evaluates to true of false
-    True if the frist argument is a date that comes before the second argument
-    False if they're the same dates
+    @param f firdate date
+    @param s second date
 *)
-fun is_older(first: int * int * int, second: int * int * int) = 
-    if #1 first < #1 second
+fun is_older (f: int * int * int, s: int * int * int) = 
+    if #1 f < #1 s
     then true
-    else if #1 first = #1 second andalso #2 first < #2 second
+    else if #1 f = #1 s andalso #2 f < #2 s
     then true
-    else if #2 first = #2 second andalso #3 first < #3 second
+    else if #2 f = #2 s andalso #3 f < #3 s
     then true
     else false
 
 (*
-    Write function number_in_month
-    Takes a list of dates and a month
-    Returns how many dates in the list are in the given month
+    @param ds the list of dates
+    @param m the month
+    @return the number of dates in the list are in the given month
 *)
-fun number_in_month(dates: int list, month: int) =
-    if null dates
+fun number_in_month (ds: (int * int * int) list, m: int) =
+    if null ds
+    then 0
+    else if #2 (hd ds) = m
+    then 1 + number_in_month (tl ds, m)
+    else 0 + number_in_month (tl ds, m)
+
+
+(*
+    @param ds list of dates
+    @param ms list of months
+    @return the number of dates in the list of dates that are in any of the months
+*)
+fun number_in_months (ds: (int * int * int) list, ms: int list) =
+    if null ms
     then 0
     else
         let
-            val thirtyDays = month = 4 orelse month =  6 orelse month = 9 orelse month =  11
-            val thirtyOneDays = month = 1 orelse month = 3 orelse month = 6 orelse month = 7 orelse month = 8 orelse month = 10 orelse month = 12
-            val twentyEightDays = month = 2
+          val date_count = number_in_month (ds, hd ms)
         in
-            if hd dates < 29
-            then 1 + number_in_month(tl dates, month)
-            else if hd dates > 28 andalso twentyEightDays
-            then 0 + number_in_month(tl dates, month)
-            else if hd dates > 28 andalso hd dates < 31 andalso thirtyDays
-            then 1 + number_in_month(tl dates, month)
-            else if hd dates > 28 andalso hd dates < 32 andalso thirtyOneDays
-            then 1 + number_in_month(tl dates, month)
-            else 0
+          date_count + number_in_months (ds, tl ms)
         end
 
-val ans = number_in_month([1, 28, 29, 31], 4)
+(*
+    @param ds list of dates
+    @param m month
+    @return a list holding the dates from the argument list of dates that are in the month
+    Return list should contain dates in the order they were originally given
+*)
+fun dates_in_month (ds: (int * int * int) list, m: int) = 
+    if null ds
+    then []
+    else if #2 (hd ds) = m
+    then (hd ds) :: dates_in_month (tl ds, m)
+    else dates_in_month (tl ds , m)
+
+(*
+    @param ds list of dates
+    @param ms list of months
+    @return a list holding the dats from the argument list of dates that are in any ms
+*)
+fun dates_in_months (ds: (int * int * int) list, ms: int list) =
+    if null ms
+    then []
+    else dates_in_month (ds, hd ms) @ dates_in_months (ds, tl ms)
+
+(*
+    @param ss list of strings
+    @param n and int n to index
+    @return the nth element of the list where head of the list is 1st
+*)
+fun get_nth (ss: string list, n: int) =
+    if null ss orelse n < 1
+    then ""
+    else if n <> 1
+    then get_nth (tl ss, n - 1)
+    else hd ss
+
+(*
+    @param the date
+    @return return a strin gof the from January 20, 2013, for example
+*)
+fun date_to_string (d: int * int * int) =
+    let
+      val months = ["January", "Februrary", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+      val some_month = get_nth (months, #2 d)
+    in
+      some_month ^ " " ^ Int.toString (#3 d) ^ ", " ^ Int.toString (#1 d)
+    end
+
+
+
+val test1 = is_older ((1,2,3),(2,3,4)) = true
+
+val test2 = number_in_month ([(2012,2,28),(2013,12,1)],2) = 1
+
+val test3 = number_in_months ([(2012,2,28),(2013,12,1),(2011,3,31),(2011,4,28)],[2,3,4]) = 3
+
+val test4 = dates_in_month ([(2012,2,28),(2013,12,1)],2) = [(2012,2,28)]
+
+val test5 = dates_in_months ([(2012,2,28),(2013,12,1),(2011,3,31),(2011,4,28)],[2,3,4]) = [(2012,2,28),(2011,3,31),(2011,4,28)]
+
+val test6 = get_nth (["hi", "there", "how", "are", "you"], 2) = "there"
+
+val test7 = date_to_string (2013, 6, 1) = "June 1, 2013"
