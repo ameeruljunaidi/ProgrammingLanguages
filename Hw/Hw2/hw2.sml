@@ -19,12 +19,6 @@ fun all_except_option (find, ls) =
                                 NONE => NONE
                               | SOME y => SOME (s::y)
 
-val test_all_except_option_1 = all_except_option ("i", ["i"]) = SOME []
-val test_all_except_option_2 = all_except_option ("i", ["am"]) = NONE
-val test_all_except_option_3 = all_except_option ("i", ["i", "am", "iron", "man"]) = SOME ["am", "iron", "man"]
-val test_all_except_option_4 = all_except_option ("am", ["i", "am", "iron", "man"]) = SOME ["i", "iron", "man"]
-val test_all_except_option_5 = all_except_option ("ant", ["black", "ant", "iron"]) = SOME ["black", "iron"]
-    
 fun get_substitutions1 (lls, find) =
     case lls of
        [] => []
@@ -32,21 +26,6 @@ fun get_substitutions1 (lls, find) =
                       NONE => get_substitutions1 (lls', find)
                     | SOME y => y @ get_substitutions1 (lls', find)
 
-val test_get_substitutions1_1 = get_substitutions1 ([["foo"],["there"]], "foo") = []
-val test_get_substitutions1_2 = get_substitutions1 ([["i", "am", "iron"],["black", "widow", "iron"]], "iron") = ["i", "am", "black", "widow"]
-val test_get_substitutions1_3 = get_substitutions1 ([["i", "am", "iron"],["black", "widow", "iron"]], "hawk") = []
-val test_get_substitutions1_4 = get_substitutions1 ([["i", "am", "iron"],["ant", "widow", "iron"]], "widow") = ["ant", "iron"]
-val test_get_substitutions1_5 = get_substitutions1 ([["i"],["ant", "widow"], ["iron", "ant"]], "ant") = ["widow", "iron"]
-
-(* fun get_substitutions2 (lls, find) =
-   let fun aux (lls, acc) =
-       case lls of
-          [] => acc
-        | ls::lls' => case all_except_option (find, ls) of
-                         NONE => aux (lls', acc)
-                       | SOME y => aux (lls', acc @ y)
-   in aux (lls, [])
-   end *)
 
 fun get_substitutions2 (lls, find) =
     let fun aux (lls, acc) =
@@ -58,33 +37,19 @@ fun get_substitutions2 (lls, find) =
     in aux (lls, [])
     end 
 
-val test_get_substitutions2_1 = get_substitutions2 ([["foo"],["there"]], "foo") = []
-val test_get_substitutions2_2 = get_substitutions2 ([["i", "am", "iron"],["black", "widow", "iron"]], "iron") = ["i", "am", "black", "widow"]
-val test_get_substitutions2_3 = get_substitutions2 ([["i", "am", "iron"],["black", "widow", "iron"]], "hawk") = []
-val test_get_substitutions2_4 = get_substitutions2 ([["i", "am", "iron"],["ant", "widow", "iron"]], "widow") = ["ant", "iron"]
-val test_get_substitutions2_5 = get_substitutions2 ([["i"],["ant", "widow"], ["iron", "ant"]], "ant") = ["widow", "iron"]
 
 (* Returns a list of full names you can produce by substituting for the first name (and only the first name) 
    using substitutions in part b or c *)
 fun similar_names (lls, name) =
-    let fun aux (ls, acc) =
-        case ls of
-           [] => acc
-         | s::lls' => aux (lls', acc @ [{first=s, middle=(#middle name), last=(#last name)}])
-    in aux (get_substitutions2 (lls, #first name), [name])
-    end
+    case name of
+       {first=a, middle=b, last=c} => let fun aux (ls, acc) =
+                                              case ls of
+                                                 [] => acc
+                                               | s::ls' => aux (ls', acc @ [{first=s, middle=b, last=c}])
+                                      in aux (get_substitutions2 (lls, a), [name])
+                                      end
+     
 
-val test_similar_names_1 = similar_names ([["Fred","Fredrick"],["Elizabeth","Betty"],["Freddie","Fred","F"]], {first="Fred", middle="W", last="Smith"}) =
-        [{first="Fred", last="Smith", middle="W"}, {first="Fredrick", last="Smith", middle="W"},
-         {first="Freddie", last="Smith", middle="W"}, {first="F", last="Smith", middle="W"}]
-val test_similar_names_2 = similar_names ([["Fred","Fredrick"],["Elizabeth","Betty"],["Freddie","Fred","F"]], {first="Elizabeth", middle="W", last="Smith"}) =
-        [{first="Elizabeth", last="Smith", middle="W"}, {first="Betty", last="Smith", middle="W"}]
-val test_similar_names_3 = similar_names ([["James","Jameson", "Jamie"],["Elizabeth","Betty"],["Freddie","Fred","F"]], {first="James", middle="W", last="Smith"}) =
-        [{first="James", last="Smith", middle="W"}, {first="Jameson", last="Smith", middle="W"}, {first="Jamie", last="Smith", middle="W"}]
-val test_similar_names_4 = similar_names ([["James","Jameson", "Jamie"],["Elizabeth","Betty"],["Freddie","Fred","F"]], {first="Molly", middle="W", last="Smith"}) =
-        [{first="Molly", last="Smith", middle="W"}]
-val test_similar_names_5 = similar_names ([["James"],["Elizabeth","Betty"],["Freddie","Fred","F"]], {first="James", middle="W", last="Smith"}) =
-        [{first="James", last="Smith", middle="W"}]
 
 (* put your solutions for problem 2 here *)
 
@@ -98,3 +63,69 @@ datatype color = Red | Black
 datatype move = Discard of card | Draw 
 
 exception IllegalMove
+
+fun card_color (card) =
+    case card of
+       (Spades, _) => Black
+     | (Clubs, _) => Black
+     | (Diamonds, _) => Red
+     | (Hearts, _) => Red
+
+fun card_value (card) =
+    case card of
+       (_, Num i) => i
+     | (_, Jack) => 10
+     | (_, Queen) => 10
+     | (_, King) => 10
+     | (_, Ace) => 11
+
+fun remove_card (cs, c, e) =
+   case cs of
+      [] => raise e
+    | x::cs' => case x = c of
+                  true => cs'
+                | false => case remove_card (cs', c, e) of
+                              [] => []
+                            | y => x::y
+    
+fun all_same_color (cs) =
+    case cs of
+       [] => true
+     | y::[] => true
+     | x::y::cs' => case card_color (x) = card_color (y) of
+                       true => all_same_color (y::cs')
+                     | false => false
+
+fun sum_cards (cs) =
+    let fun aux (cs, acc) =
+        case cs of
+           [] => acc
+         | c::cs' => aux (cs', card_value (c) + acc)
+    in aux (cs, 0)
+    end
+
+(* If sum is greated than goal, the prem score is 3 x (sum - goal) 
+   Else the prem score is (goal - sum)
+   Score is prem unless all same color
+   If not prem, score is div 2 (and rounded down) *)
+fun score (cs, goal) =
+    let val sum = sum_cards (cs)
+        val prem_score = if sum > goal then 3 * (sum - goal) else goal - sum
+    in  if all_same_color (cs) then prem_score div 2 else prem_score
+    end
+
+(* Returns score at the end of the game after processing (some or all) of the moves 
+   Recall datatype move = Discard of card | Draw  *)
+fun officiate (cs, ms, goal) = 
+    let fun state (cards, moves, helds) =
+            case sum_cards (helds) > goal of
+               true => score (helds, goal)
+             | false => case moves of
+                           [] => score (helds, goal) (* If there are no moves, game over, return score*)
+                         | move::moves' => case move of (* Check what is the move *)
+                                            Discard x => state (cards, moves', remove_card (helds, x, IllegalMove))
+                                          | Draw => case cards of
+                                                        [] => score (helds, goal)
+                                                      | card::cards' => state (cards', moves', card::helds)
+    in  state (cs, ms, [])
+    end
