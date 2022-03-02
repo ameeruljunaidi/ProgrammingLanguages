@@ -10,13 +10,13 @@ datatype typ = Anything
 
 (**** you can put all your code here ****)
 
-fun only_capitals ss = List.filter (fn s => Char.isUpper (String.sub (s,0))) ss
+val only_capitals = List.filter (fn s => Char.isUpper (String.sub (s,0)))
 
-fun longest_string1 ss = List.foldl (fn (s,x) => if String.size s > String.size x then s else x) "" ss
+val longest_string1 = List.foldl (fn (s,x) => if String.size s > String.size x then s else x) "" 
 
-fun longest_string2 ss = List.foldl (fn (x,s) => if String.size s > String.size x then s else x) "" ss
+val longest_string2 = List.foldl (fn (x,s) => if String.size s > String.size x then s else x) "" 
 
-fun longest_string_helper f ss = List.foldl (f) "" ss
+fun longest_string_helper f = List.foldl (f) ""
 
 val longest_string3 = longest_string_helper (fn (s,x) => if String.size s > String.size x then s else x)
 
@@ -73,15 +73,67 @@ fun g f1 f2 p =
      | _                 => 0
   end
 
-fun count_wildcards_no_g p =
+(* Ignore, just practice *)
+fun count_wildcards1 p =
   case p of
-     ConstructorP (_,p') => count_wildcards_no_g (p')
-   | TupleP ps => (case ps of
-                     [] => 0
-                   | x::xs' => (count_wildcards_no_g x) + (count_wildcards_no_g (TupleP xs')))
-   | Wildcard => 1
-   | _ => 0
+     ConstructorP (_,p') => count_wildcards1 (p')
+   | TupleP ps           => (case ps of [] => 0 | x::xs' => (count_wildcards1 x) + (count_wildcards1 (TupleP xs')))
+   | Wildcard            => 1
+   | _                   => 0
 
-fun count_wildcards p = 
+val count_wildcards = g (fn _ => 1) (fn _ => 0)
 
-val test_count_wildcards_1 = count_wildcards Wildcard = 1
+val count_wild_and_variable_lengths = g (fn _ => 1) (fn s => String.size s)
+
+fun same_string(s1 : string, s2 : string) = s1 = s2
+
+fun count_some_var (s, p) = g (fn _ => 0) (fn x => if same_string (x, s) then 1 else 0) p
+
+fun check_pat p =
+  let
+
+    fun get_variable v = 
+      case v of
+         Wildcard          => []
+       | Variable x        => [x]
+       | ConstructorP(_,w) => get_variable (w)
+       | TupleP xs         => (case xs of [] => [] | x::xs' => get_variable (x) @ get_variable (TupleP xs'))
+       | _                 => []
+
+    fun check_repeats m =
+       case m of
+          [] => true
+        | m::ms' => case (List.exists (fn s => s = m) ms') of
+                       true => false
+                     | false => check_repeats ms'
+
+  in check_repeats (get_variable p)
+  end
+
+
+(* 
+   Returns (string * valu) list option 
+   - NONE if the pattern does not match
+   - SOME lst if it does (lst is list of bindings)
+   - If valu match but no Variable s, return SOME []
+
+   Use all_answers and ListPair.zip: 
+   - val all_answers = fn : ('a -> 'b list option) -> 'a list -> 'b list option 
+   - val zip = fn : 'a list * 'b list -> ('a * 'b) list 
+
+   datatype pattern = Wildcard
+          | Variable of string
+          | UnitP
+          | ConstP of int
+          | TupleP of pattern list
+          | ConstructorP of string * pattern
+
+   datatype valu = Const of int
+          | Unit
+          | Tuple of valu list
+          | Constructor of string * valu
+*)
+fun match (v, p) =
+
+
+val test_match_1 = match (Const(1), UnitP) = NONE

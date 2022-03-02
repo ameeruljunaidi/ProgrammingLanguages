@@ -52,3 +52,21 @@ val test_count_wildcards_2 = count_wildcards (ConstructorP ("Hello", Constructor
 val test_count_wildcards_3 = count_wildcards UnitP = 0
 val test_count_wildcards_4 = count_wildcards (ConstP 5) =  0
 val test_count_wildcards_5 = count_wildcards (TupleP [ConstructorP ("Hello", Wildcard), Wildcard]) = 2
+
+val test_count_wild_and_variable_lengths_1 = count_wild_and_variable_lengths (Variable("a")) = 1
+val test_count_wild_and_variable_lengths_2 = count_wild_and_variable_lengths (TupleP [Wildcard, Variable "Hello"]) = 6
+val test_count_wild_and_variable_lengths_3 = count_wild_and_variable_lengths (TupleP [Wildcard, UnitP]) = 1
+val test_count_wild_and_variable_lengths_4 = count_wild_and_variable_lengths (TupleP []) = 0
+val test_count_wild_and_variable_lengths_5 = count_wild_and_variable_lengths (TupleP [Wildcard, Wildcard, Variable "Hello"]) = 7
+
+val test_count_some_var_1 = count_some_var ("x", Variable("x")) = 1
+val test_count_some_var_2 = count_some_var ("x", TupleP [Variable "x", Variable "x"]) = 2
+val test_count_some_var_3 = count_some_var ("x", Variable("s")) = 0
+val test_count_some_var_4 = count_some_var ("x", Wildcard) = 0
+val test_count_some_var_5 = count_some_var ("x", ConstructorP ("Test", Variable "x")) = 1
+
+val test_check_pat_1 = check_pat (Variable("x")) = true
+val test_check_pat_2 = check_pat (TupleP [Variable ("a"), Variable ("b"), Variable ("c")]) = true
+val test_check_pat_3 = check_pat (TupleP [Variable ("a"), Variable ("a"), Variable ("b")]) = false
+val test_check_pat_4 = check_pat (TupleP [Variable ("a"), Variable ("a"), Variable ("a")]) = false
+val test_check_pat_5 = check_pat (TupleP []) = true
