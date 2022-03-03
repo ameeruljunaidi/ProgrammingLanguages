@@ -133,7 +133,21 @@ fun check_pat p =
           | Tuple of valu list
           | Constructor of string * valu
 *)
-fun match (v, p) =
 
+fun match (v, p) =
+  case (v, p) of
+     (_, Wildcard)         => SOME []
+   | (v, Variable s)       => SOME [(s, v )]
+   | (Unit, UnitP)         => SOME []
+   | (Const x, ConstP y)   => if x = y then SOME [] else NONE
+   | (Tuple vs, TupleP ps) => (let 
+                                 
+                                   
+                               in check_match (vs, ps)
+                               end) 
+   | (Constructor (s1, v), ConstructorP (s2, p)) => (case s1 = s2 of false => NONE | true => match (v, p))
+   | (_, _) => NONE
 
 val test_match_1 = match (Const(1), UnitP) = NONE
+val test_match_2 = match (Constructor ("Test", Const 4), ConstructorP ("Test", ConstP 4)) = SOME []
+val test_match_3 = match (Unit, Variable "Test") = SOME [("Test", Unit)]

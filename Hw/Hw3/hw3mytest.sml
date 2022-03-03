@@ -29,7 +29,6 @@ val test_longest_string4_3 = longest_string4 ["a","b","cc", "dd"] = "dd"
 val test_longest_string4_4 = longest_string4 ["James","Cory","Mary", "Michael"] = "Michael"
 val test_longest_string4_5 = longest_string4 ["Testa","Testb","Testc"] = "Testc"
 
-
 val test_longest_capitalized_1 = longest_capitalized ["A","bc","C"] = "A"
 val test_longest_capitalized_2 = longest_capitalized ["A","hello","C"] = "A"
 val test_longest_capitalized_3 = longest_capitalized [] = ""
