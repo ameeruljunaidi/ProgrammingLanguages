@@ -134,20 +134,57 @@ fun check_pat p =
           | Constructor of string * valu
 *)
 
+(* Ignore, just practice without helper function *)
+fun match1 (v, p) =
+  case (v, p) of
+     (_, Wildcard)         => SOME []
+   | (v, Variable s)       => SOME [(s, v )]
+   | (Unit, UnitP)         => SOME []
+   | (Const x, ConstP y)   => if x = y then SOME [] else NONE
+   | (Tuple vs, TupleP ps) => (let fun check_match (vs, ps) =
+                                     case (vs, ps) of
+                                        ([], [])         => SOME []
+                                      | (v::vs', p::ps') => (case match1 (v, p) of
+                                                               SOME []  => SOME []
+                                                             | SOME [w] => (case check_match (vs', ps') of
+                                                                              NONE     => SOME [w]
+                                                                            | SOME []  => SOME [w]
+                                                                            | SOME [z] => SOME ([w] @ [z])
+                                                                            | _        => NONE)
+                                                             | _        => NONE)
+                                      | _           => NONE 
+                               in check_match (vs, ps)
+                               end) 
+   | (Constructor (s1, v), ConstructorP (s2, p)) => if s1 = s2 then match1 (v, p) else NONE
+   | (_, _) => NONE
+
+(*
+   Recall:
+   - val all_answers = fn : ('a -> 'b list option) -> 'a list -> 'b list option 
+   - val zip = fn : 'a list * 'b list -> ('a * 'b) list 
+
+   Match returns (string * valu) list option and the first argument for all answers take b' list option
+   Which matched the (string * valu) list option - (string * valu) is b'
+   ListPair.zip takes the list of valus and the list of patters and zip the up
+   The match function then takes a valu and a pattern
+*)
 fun match (v, p) =
   case (v, p) of
      (_, Wildcard)         => SOME []
    | (v, Variable s)       => SOME [(s, v )]
    | (Unit, UnitP)         => SOME []
    | (Const x, ConstP y)   => if x = y then SOME [] else NONE
-   | (Tuple vs, TupleP ps) => (let 
-                                 
-                                   
-                               in check_match (vs, ps)
-                               end) 
-   | (Constructor (s1, v), ConstructorP (s2, p)) => (case s1 = s2 of false => NONE | true => match (v, p))
+   | (Tuple vs, TupleP ps) => if List.length vs <> List.length ps then NONE
+                              else all_answers match (ListPair.zip (vs, ps)) 
+   | (Constructor (s1, v), ConstructorP (s2, p)) => if s1 = s2 then match (v, p) else NONE
    | (_, _) => NONE
 
-val test_match_1 = match (Const(1), UnitP) = NONE
-val test_match_2 = match (Constructor ("Test", Const 4), ConstructorP ("Test", ConstP 4)) = SOME []
-val test_match_3 = match (Unit, Variable "Test") = SOME [("Test", Unit)]
+(* Ignore, just practice *)
+fun first_match1 v ps =
+  let fun construct (n, ps, acc) = case ps of [] => acc | p::ps' => construct (n - 1, ps', acc @ [(v, p)])
+  in SOME (first_answer (fn (x, y) => match (x, y)) (construct (List.length ps, ps, []))) end
+
+fun first_match v ps =
+  case ps of
+     [] => NONE
+   | p::ps' => SOME (first_answer (fn (x, y) => match (x, y)) [(v, p)]) handle NoAnswer => (first_match v ps')

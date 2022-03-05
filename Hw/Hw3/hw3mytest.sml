@@ -45,6 +45,7 @@ val test_all_answers_2 = all_answers (fn x => if x = 1 then SOME [x] else NONE) 
 val test_all_answers_3 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [1,3,4,1,6,7] = SOME [1,1]
 val test_all_answers_4 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [1,3,4,1,1,7] = SOME [1,1,1]
 val test_all_answers_5 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [] = SOME []
+val test_all_answers_6 = all_answers (fn x => if x = "test" then SOME [x] else NONE) ["the","walrus","and","the","carpenter","talked","of","many","things","","of","shoes","and","ships","and","ceiling","wax","","of","Cabbages","and","Kings"]
 
 val test_count_wildcards_1 = count_wildcards Wildcard = 1
 val test_count_wildcards_2 = count_wildcards (ConstructorP ("Hello", ConstructorP ("World", Wildcard))) = 1
@@ -69,3 +70,29 @@ val test_check_pat_2 = check_pat (TupleP [Variable ("a"), Variable ("b"), Variab
 val test_check_pat_3 = check_pat (TupleP [Variable ("a"), Variable ("a"), Variable ("b")]) = false
 val test_check_pat_4 = check_pat (TupleP [Variable ("a"), Variable ("a"), Variable ("a")]) = false
 val test_check_pat_5 = check_pat (TupleP []) = true
+
+val test_match1_1 = match1 (Const(1), UnitP) = NONE
+val test_match1_2 = match1 (Constructor ("Test", Const 4), ConstructorP ("Test", ConstP 4)) = SOME []
+val test_match1_3 = match1 (Unit, Variable "Test") = SOME [("Test", Unit)]
+
+val test_match_1 = match (Const(1), UnitP) = NONE
+val test_match_2 = match (Constructor ("Test", Const 4), ConstructorP ("Test", ConstP 4)) = SOME []
+val test_match_3 = match (Unit, Variable "Test") = SOME [("Test", Unit)]
+
+val test_first_match1_1 = first_match1 Unit [UnitP] = SOME []
+val test_first_match1_2 = first_match1 (Tuple [Unit, Const 69]) ([TupleP [Variable "Test", ConstP 69]]) = SOME [("Test", Unit)]
+
+val test_first_match_1 = first_match Unit [UnitP] = SOME []
+val test_first_match_2 = first_match (Tuple [Unit, Const 69]) ([TupleP [Variable "Test", ConstP 69]]) = SOME [("Test", Unit)]
+(* val test_first_match_3 = first_match (Tuple[Const 17,Unit,Const 4,Constructor ("egg",Const 4),Constructor ("egg",Constructor ("egg",Const 4)),Tuple[Const 17,Unit,Const 4,Constructor ("egg",Const 4),Constructor ("egg",Constructor ("egg",Const 4))],Tuple[Unit,Unit],Tuple[Const 17,Const 4],Tuple[Constructor ("egg",Const 4),Constructor ("egg",Const 4)]],[ConstP 17,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4)),TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4))],TupleP[Wildcard,Wildcard],TupleP[ConstP 17,ConstP 4],TupleP[ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstP 4)],TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4)),TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4))],TupleP[Wildcard,Wildcard],TupleP[ConstP 17,ConstP 4],TupleP[ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstP 4)]]]) *)
+
+
+(*
+match: Called match on input: (Tuple[Const 17,Unit,Const 4,Constructor ("egg",Const 4),Constructor ("egg",Constructor ("egg",Const 4)),Tuple[Const 17,Unit,Const 4,Constructor ("egg",Const 4),Constructor ("egg",Constructor ("egg",Const 4))],Tuple[Unit,Unit],Tuple[Const 17,Const 4],Tuple[Constructor ("egg",Const 4),Constructor ("egg",Const 4)]],TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4)),TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4))],TupleP[Wildcard,Wildcard],TupleP[ConstP 17,ConstP 4],TupleP[ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstP 4)]]), should have gotten: SOME([]) but your function returned otherwise. [incorrect answer]
+first_match: Called first_match on input: (Tuple[Const 17,Unit,Const 4,Constructor ("egg",Const 4),Constructor ("egg",Constructor ("egg",Const 4)),Tuple[Const 17,Unit,Const 4,Constructor ("egg",Const 4),Constructor ("egg",Constructor ("egg",Const 4))],Tuple[Unit,Unit],Tuple[Const 17,Const 4],Tuple[Constructor ("egg",Const 4),Constructor ("egg",Const 4)]],[ConstP 17,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4)),TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4))],TupleP[Wildcard,Wildcard],TupleP[ConstP 17,ConstP 4],TupleP[ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstP 4)],TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4)),TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4))],TupleP[Wildcard,Wildcard],TupleP[ConstP 17,ConstP 4],TupleP[ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstP 4)]]]), should have gotten: SOME([]) but your function returned otherwise. [incorrect answer]
+prob13 tests failed to run (most likely caused by an incorrect function signature in the submission)
+prob2to4 tests failed to run (most likely caused by an incorrect function signature in the submission)
+all_answers: Called all_answers on: [the,walrus,and,the,carpenter,talked,of,many,things,,of,shoes,and,ships,and,ceiling,wax,,of,Cabbages,and,Kings.], should have gotten: NONE but your function returned something else [incorrect answer]
+all_answers: Called all_answers on: [this,list,has,no,capital,letters], should have gotten: NONE but your function returned something else [incorrect answer]
+all_answers: Called all_answers on: [Alabama,Alaska,Arizona,Arkansas,California,Colorado,Connecticut,Delaware,Florida,Georgia,Hawaii,Idaho,Illinois,Indiana,Iowa,Kansas,Kentucky,Louisiana,Maine,Maryland,massachusetts,Michigan,Minnesota,Mississippi,Missouri,Montana,Nebraska,Nevada,New Hampshire,New Jersey,New Mexico,New York,NorthCarolina,North Dakota,Ohio,Oklahoma,Oregon,Pennsylvania,Rhode Island,southCarolina,South Dakota,Tennessee,Texas,Utah,Vermont,Virginia,Washington,West Virginia,Wisconsin,Wyoming], should have gotten: NONE but your function returned something else [incorrect answer]
+*)
