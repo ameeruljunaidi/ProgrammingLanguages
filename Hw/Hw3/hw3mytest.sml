@@ -41,11 +41,11 @@ val test_rev_string_2 = rev_string "hello" = "olleh"
 val test_first_answer_1 = first_answer (fn x => if x > 3 then SOME x else NONE) [1,2,3,4,5] = 4
 
 val test_all_answers_1 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [2,3,4,5,6,7] = NONE
-val test_all_answers_2 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [1,3,4,5,6,7] = SOME [1]
-val test_all_answers_3 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [1,3,4,1,6,7] = SOME [1,1]
-val test_all_answers_4 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [1,3,4,1,1,7] = SOME [1,1,1]
+val test_all_answers_2 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [1,3,4,5,6,7] = NONE
+val test_all_answers_3 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [1,3,4,1,6,7] = NONE
+val test_all_answers_4 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [1,1,1] = SOME [1,1,1]
 val test_all_answers_5 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [] = SOME []
-val test_all_answers_6 = all_answers (fn x => if x = "test" then SOME [x] else NONE) ["the","walrus","and","the","carpenter","talked","of","many","things","","of","shoes","and","ships","and","ceiling","wax","","of","Cabbages","and","Kings"]
+
 
 val test_count_wildcards_1 = count_wildcards Wildcard = 1
 val test_count_wildcards_2 = count_wildcards (ConstructorP ("Hello", ConstructorP ("World", Wildcard))) = 1
@@ -78,13 +78,17 @@ val test_match1_3 = match1 (Unit, Variable "Test") = SOME [("Test", Unit)]
 val test_match_1 = match (Const(1), UnitP) = NONE
 val test_match_2 = match (Constructor ("Test", Const 4), ConstructorP ("Test", ConstP 4)) = SOME []
 val test_match_3 = match (Unit, Variable "Test") = SOME [("Test", Unit)]
+val test_match_4 = match (Tuple [Const 17,  Unit,     Const 4,  Constructor ("egg",Const 4),   Constructor ("egg",Constructor ("egg",Const 4)),    Tuple[Const 17,Unit,Const 4,Constructor ("egg",Const 4),Constructor ("egg",Constructor ("egg",Const 4))] ,Tuple[Unit,Unit],Tuple[Const 17,Const 4],Tuple[Constructor ("egg",Const 4),Constructor ("egg",Const 4)]],
+                          TupleP[ConstP 17, Wildcard, ConstP 4, ConstructorP ("egg",ConstP 4), ConstructorP ("egg",ConstructorP ("egg",ConstP 4)), TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4))],TupleP[Wildcard,Wildcard],TupleP[ConstP 17,ConstP 4],TupleP[ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstP 4)]]) = SOME []
+val test_match_5 = match (Unit, UnitP) = SOME []
 
 val test_first_match1_1 = first_match1 Unit [UnitP] = SOME []
 val test_first_match1_2 = first_match1 (Tuple [Unit, Const 69]) ([TupleP [Variable "Test", ConstP 69]]) = SOME [("Test", Unit)]
 
 val test_first_match_1 = first_match Unit [UnitP] = SOME []
 val test_first_match_2 = first_match (Tuple [Unit, Const 69]) ([TupleP [Variable "Test", ConstP 69]]) = SOME [("Test", Unit)]
-(* val test_first_match_3 = first_match (Tuple[Const 17,Unit,Const 4,Constructor ("egg",Const 4),Constructor ("egg",Constructor ("egg",Const 4)),Tuple[Const 17,Unit,Const 4,Constructor ("egg",Const 4),Constructor ("egg",Constructor ("egg",Const 4))],Tuple[Unit,Unit],Tuple[Const 17,Const 4],Tuple[Constructor ("egg",Const 4),Constructor ("egg",Const 4)]],[ConstP 17,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4)),TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4))],TupleP[Wildcard,Wildcard],TupleP[ConstP 17,ConstP 4],TupleP[ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstP 4)],TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4)),TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4))],TupleP[Wildcard,Wildcard],TupleP[ConstP 17,ConstP 4],TupleP[ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstP 4)]]]) *)
+val test_first_match_3 = first_match (Tuple[Const 17,Unit,Const 4,Constructor ("egg",Const 4),Constructor ("egg",Constructor ("egg",Const 4)),Tuple[Const 17,Unit,Const 4,Constructor ("egg",Const 4),Constructor ("egg",Constructor ("egg",Const 4))],Tuple[Unit,Unit],Tuple[Const 17,Const 4],Tuple[Constructor ("egg",Const 4),Constructor ("egg",Const 4)]]) ([ConstP 17,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4)),TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4))],TupleP[Wildcard,Wildcard],TupleP[ConstP 17,ConstP 4],TupleP[ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstP 4)],TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4)),TupleP[ConstP 17,Wildcard,ConstP 4,ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstructorP ("egg",ConstP 4))],TupleP[Wildcard,Wildcard],TupleP[ConstP 17,ConstP 4],TupleP[ConstructorP ("egg",ConstP 4),ConstructorP ("egg",ConstP 4)]]]) = SOME []
+val test_first_match_4 = first_match (Constructor ("egg",Const 4)) ([ConstP 4]) = NONE
 
 
 (*

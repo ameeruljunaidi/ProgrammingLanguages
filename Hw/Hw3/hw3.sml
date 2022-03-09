@@ -36,19 +36,16 @@ fun first_answer f xs =
                 | SOME y => y
 
 fun all_answers f xs =
-  case xs of
-     [] => SOME []
-   | _ => let fun aux (ys, acc) =
-              case ys of
-                 [] => acc
-               | y::ys' => case f y of
-                              NONE => aux (ys', acc)
-                            | SOME w => aux (ys', w @ acc)
-          in case aux (xs, []) of
-                [] => NONE
-              | v => SOME v
-          end
-
+  let fun aux (ys, acc) =
+        case ys of
+           [] => SOME acc
+         | y::ys' => case f y of
+                        NONE => NONE
+                      | SOME w => aux (ys', w @ acc)
+  in case xs of
+        [] => SOME []
+      | _ => aux (xs, [])
+  end
 
 datatype pattern = Wildcard
        | Variable of string
@@ -134,7 +131,7 @@ fun check_pat p =
           | Constructor of string * valu
 *)
 
-(* Ignore, just practice without helper function *)
+(* Ignore, just practice without standard library function, ugly code *)
 fun match1 (v, p) =
   case (v, p) of
      (_, Wildcard)         => SOME []
@@ -171,20 +168,24 @@ fun match1 (v, p) =
 fun match (v, p) =
   case (v, p) of
      (_, Wildcard)         => SOME []
-   | (v, Variable s)       => SOME [(s, v )]
+   | (v, Variable s)       => SOME [(s, v)]
    | (Unit, UnitP)         => SOME []
    | (Const x, ConstP y)   => if x = y then SOME [] else NONE
    | (Tuple vs, TupleP ps) => if List.length vs <> List.length ps then NONE
                               else all_answers match (ListPair.zip (vs, ps)) 
-   | (Constructor (s1, v), ConstructorP (s2, p)) => if s1 = s2 then match (v, p) else NONE
-   | (_, _) => NONE
+   | (Constructor (s1, v'), ConstructorP (s2, p')) => if s1 = s2 then match (v', p') else NONE
+   | _ => NONE
 
-(* Ignore, just practice *)
+(* Ignore, just practicing *)
 fun first_match1 v ps =
-  let fun construct (n, ps, acc) = case ps of [] => acc | p::ps' => construct (n - 1, ps', acc @ [(v, p)])
-  in SOME (first_answer (fn (x, y) => match (x, y)) (construct (List.length ps, ps, []))) end
+  let fun construct (n, ps, acc) = 
+    case ps of 
+       [] => acc 
+     | p::ps' => construct (n - 1, ps', acc @ [(v, p)])
+  in SOME (first_answer match (construct (List.length ps, ps, []))) 
+  end
 
 fun first_match v ps =
   case ps of
      [] => NONE
-   | p::ps' => SOME (first_answer (fn (x, y) => match (x, y)) [(v, p)]) handle NoAnswer => (first_match v ps')
+   | p::ps' => SOME (first_answer match [(v, p)]) handle NoAnswer => (first_match v ps')
