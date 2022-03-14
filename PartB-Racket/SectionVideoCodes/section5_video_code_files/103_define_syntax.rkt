@@ -6,7 +6,7 @@
 (provide (all-defined-out))
 
 ;; a cosmetic macro -- adds then, else
-(define-syntax my-if 
+(define-syntax my-if
   (syntax-rules (then else)
     [(my-if e1 then e2 else e3)
      (if e1 e2 e3)]))
@@ -25,12 +25,12 @@
 ; this is really bad because it evaluates e multiple times
 (define-syntax my-force-macro1
   (syntax-rules ()
-     [(my-force e)
-      (if (mcar e)
-          (mcdr e)
-          (begin (set-mcar! e #t)
-                 (set-mcdr! e ((mcdr e)))
-                 (mcdr e)))]))
+    [(my-force e)
+     (if (mcar e)
+         (mcdr e)
+         (begin (set-mcar! e #t)
+                (set-mcdr! e ((mcdr e)))
+                (mcdr e)))]))
 
 ; do *not* do this either because a function is exactly what we want
 (define-syntax my-force-macro2
