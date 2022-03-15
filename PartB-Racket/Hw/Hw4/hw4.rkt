@@ -58,3 +58,16 @@
                     (cons (- x) (lambda () (f (+ x 1))))
                     (cons x (lambda () (f (+ x 1))))))])
     (lambda () (f 1))))
+
+; Problem 6
+; Write a stream dan-then-dog, where the elements of the stream alternate between the strings "dan.jpg"
+; and "dog.jpg" (starting with "dan.jpg"). More specifically, dan-then-dog should be a thunk that
+; when called produces a pair of "dan.jpg" and a thunk that when called produces a pair of "dog.jpg"
+; and a thunk that when called... etc. Sample solution: 4 lines.
+
+(define dan-then-dog
+  (letrec ([f (lambda (x)
+                (if (= 0 (remainder x 2))
+                    (cons "dan.jpg" (lambda () (f (+ x 1))))
+                    (cons "dog.jpg" (lambda () (f (+ x 1))))))])
+    (lambda () (f 0))))
