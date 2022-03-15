@@ -66,8 +66,6 @@
 ; and a thunk that when called... etc. Sample solution: 4 lines.
 
 (define dan-then-dog
-  (letrec ([f (lambda (x)
-                (if (= 0 (remainder x 2))
-                    (cons "dan.jpg" (lambda () (f (+ x 1))))
-                    (cons "dog.jpg" (lambda () (f (+ x 1))))))])
-    (lambda () (f 0))))
+  (letrec ([dan (lambda () (cons "dan.jpg" dog))]
+           [dog (lambda () (cons "dog.jpg" dan))])
+    dan))
