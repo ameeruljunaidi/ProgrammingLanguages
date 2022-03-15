@@ -8,6 +8,7 @@
 ; Write a function sequence that takes 3 arguments low, high, and stride, all assumed to be numbers.
 ; Further assume stride is positive. sequence produces a list of numbers from low to high (including
 ; low and possibly high) separated by stride and in sorted order. Sample solution: 4 lines.
+
 (define (sequence lo hi stride)
   (if (> lo hi) null (cons lo (sequence (+ lo stride) hi stride))))
 
@@ -17,6 +18,7 @@
 ; list of strings. Each element of the output should be the corresponding element of the input appended
 ; with suffix (with no extra space between the element and suffix). You must use Racket-library
 ; functions map and string-append. Sample solution: 2 lines.
+
 (define (string-append-map xs suffix)
   (map (lambda (string) (string-append string suffix)) xs))
 
@@ -27,6 +29,7 @@
 ; element of the list where we count from zero and i is the remainder produced when dividing n by the
 ; list’s length. Library functions length, remainder, car, and list-tail are all useful – see the Racket
 ; documentation. Sample solution is 6 lines.
+
 (define (list-nth-mod xs n)
   (cond [(< n 0) (error "list-nth-mod: negative number")]
         [(null? xs) (error "list-nth-mod: empty list")]
@@ -36,6 +39,7 @@
 ; Write a function stream-for-n-steps that takes a stream s and a number n. It returns a list holding
 ; the first n values produced by s in order. Assume n is non-negative. Sample solution: 5 lines. Note:
 ; You can test your streams with this function instead of the graphics code.
+
 (define (stream-for-n-steps s n)
   (if (= n 0)
       null
@@ -47,6 +51,7 @@
 ; except numbers divisble by 5 are negated (i.e., 1, 2, 3, 4, -5, 6, 7, 8, 9, -10, 11, ...). Remember a stream
 ; is a thunk that when called produces a pair. Here the car of the pair will be a number and the cdr will
 ; be another stream.
+
 (define funny-number-stream
   (letrec ([f (lambda (x)
                 (if (= 0 (remainder x 5))
