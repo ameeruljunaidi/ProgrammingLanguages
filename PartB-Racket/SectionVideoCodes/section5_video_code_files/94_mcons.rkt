@@ -12,7 +12,7 @@
 (define fourteen (car y))
 
 ; but since mutable pairs are useful, Racket has them too:
-;  mcons, mcar, mcdr, set-mcar!, set-mcdr!
+; mcons, mcar, mcdr, set-mcar!, set-mcdr!
 (define mpr (mcons 1 (mcons #t "hi")))
 (set-mcdr! (mcdr mpr) "bye")
 (define bye (mcdr (mcdr mpr)))
