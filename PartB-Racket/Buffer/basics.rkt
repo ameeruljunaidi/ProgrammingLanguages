@@ -57,3 +57,29 @@
 (define mutable-cons (mcons "hello" "world"))
 (set-mcar! mutable-cons "what up")
 (set-mcdr! mutable-cons "aj")
+
+; defining streams
+; (define (f x) (cons x (lambda () (f (+ x 1)))))
+; (define nats (lambda () (f 1)))
+
+; better way to do it
+; (define nats
+;   (letrec ([f (lambda (x) (cons x (lambda () (f (+ x 1)))))])
+;     (lambda () (f 1))))
+
+; getting the power of twos
+; (define powers-of-two
+;   (letrec ([f (lambda (x) (cons x (lambda () (f (+ x 1)))))])
+;     (lambda () (f 1))))
+
+(define (stream-maker fn arg)
+  (letrec ([f (lambda (x) (cons x (lambda () (f (fn x arg)))))])
+    (lambda () (f 1))))
+
+; nats
+(define nats (stream-maker + 1))
+; powers-of-two
+(define power-of-two (stream-maker * 2))
+
+(define three (car ((cdr ((cdr (nats)))))))
+(define four (car ((cdr ((cdr (power-of-two)))))))
