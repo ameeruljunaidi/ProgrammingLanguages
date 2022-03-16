@@ -69,3 +69,13 @@
   (letrec ([dan (lambda () (cons "dan.jpg" dog))]
            [dog (lambda () (cons "dog.jpg" dan))])
     dan))
+
+; Problem 7
+; Write a function stream-add-zero that takes a stream s and returns another stream. If s would
+; produce v for its i-th element, then (stream-add-zero s) would produce the pair (0 . v) for its i-th element.
+; Sample solution: 4 lines. Hint: Use a thunk that when called uses s and recursion.
+; Note: One of the provided tests in the file using graphics uses (stream-add-zero dan-then-dog)
+; with place-repeatedly.
+
+(check-equal? (stream-for-n-steps ones 2) (list 1 1) "stream-for-n-steps test")
+(check-equal? (stream-for-n-steps (stream-add-zero ones) 1) (list (cons 0 1)) "stream-add-zero test")
