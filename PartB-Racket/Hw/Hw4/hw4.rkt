@@ -65,9 +65,25 @@
 
 (define (vector-assoc v vec)
   (letrec ([find-v (lambda (i)
-                     (cond [(= i (- (vector-length vec) 1)) #f]
-                           [(equal? (car (vector-ref vec i)) v) (vector-ref vec i)]
-                           [#t (find-v (+ i 1))]))])
+                     (cond [(equal? i (vector-length vec)) #f]
+                           [(let ([check (vector-ref vec i)])
+                              (if (and (pair? check) (equal? (car check) v)) check (find-v (add1 i))))]
+                           [#t (find-v (add1 i))]))])
     (find-v 0)))
 
 ; Problem 10
+
+(define (cached-assoc xs n)
+  (letrec ([cache (make-vector n #f)]
+           [counter 0]
+           [f (lambda (v)
+                (let ([from-cache (vector-assoc v cache)]
+                      [from-xs (assoc v xs)])
+                  (cond [from-cache from-cache]
+                        [from-xs (begin
+                                   (vector-set! cache counter from-xs)
+                                   (set! counter (remainder (add1 counter) n))
+                                   from-xs)]
+                        [#t #f])))])
+    f))
+
