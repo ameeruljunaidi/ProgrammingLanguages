@@ -77,5 +77,7 @@
 ; Note: One of the provided tests in the file using graphics uses (stream-add-zero dan-then-dog)
 ; with place-repeatedly.
 
-(check-equal? (stream-for-n-steps ones 2) (list 1 1) "stream-for-n-steps test")
-(check-equal? (stream-for-n-steps (stream-add-zero ones) 1) (list (cons 0 1)) "stream-add-zero test")
+(define (stream-add-zero s)
+  (letrec ([pr (s)]
+           [f (lambda (x) (cons (cons 0 (car pr)) (lambda () (f (cdr pr)))))])
+    (lambda () (f s))))
